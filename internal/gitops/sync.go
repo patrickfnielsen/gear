@@ -56,7 +56,7 @@ func NewGitOps(customiseName string, currentHash string, repo Repository) *GitOp
 }
 
 func (g *GitOps) StartUpdater(ctx context.Context, bundleActivator func(*Bundle) error) {
-	updateTicker := time.NewTicker(time.Second * 10)
+	updateTicker := time.NewTicker(time.Minute * 1)
 
 	go func(ctx context.Context) {
 		defer updateTicker.Stop()

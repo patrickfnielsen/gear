@@ -125,7 +125,13 @@ func (d *RuntimeActivator) getComposeService(name, workDir string, files []strin
 		return nil, err
 	}
 
-	composeService, err := NewComposeService(command.WithOutputStream(os.Stdout))
+	logPath := path.Join(workDir, "runtime.log")
+	file, err := os.Create(logPath)
+	if err != nil {
+		return nil, err
+	}
+
+	composeService, err := NewComposeService(command.WithCombinedStreams(file))
 	if err != nil {
 		return nil, err
 	}
