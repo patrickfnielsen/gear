@@ -20,7 +20,7 @@ Here's an example structure where the `override_identifier` is set to *server1*
 /something.yaml
 /customise/server1/something.yaml
 ```
-**Note:** This follows the standard docker-compose override, see that for documentation on how to override things
+**Note:** This follows the standard docker-compose override, see that for documentation on how to override things.
 
 **What about secrets?**
 
@@ -30,6 +30,13 @@ While we don't recommend it, it's possible to use the same SSH key that's used t
 The private key needs to be specified using `encryption_key_file`.
 
 When encryption is enabled, the git sync engine will decrypt files before it starts the deploy process. Due to the native of the system, all files will be stored unencrypted on the disk afterwards. The reasoning about this is that they key is also stored on the same host.
+
+### Encryption Example
+  1) Generate a new ssh key pair using:
+     - `ssh-keygen -t ed25519 -f id_ed25519 -c "git-encryption"`
+  2) Encrypt the file using the public key:
+     - `age -R id_ed25519.pub example.yaml > example.yaml.enc`
+  3) Check-in the encrypted file into the repository, make sure to not check-in the none encrypted file
 
 ## Config Example
 ```
