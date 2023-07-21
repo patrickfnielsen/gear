@@ -3,6 +3,7 @@ module github.com/patrickfnielsen/gear
 go 1.20
 
 require (
+	filippo.io/age v1.1.1
 	github.com/compose-spec/compose-go v1.17.0
 	github.com/docker/cli v24.0.4+incompatible
 	github.com/docker/compose/v2 v2.20.0
@@ -15,6 +16,7 @@ require (
 )
 
 require (
+	filippo.io/edwards25519 v1.0.0 // indirect
 	github.com/AdaLogics/go-fuzz-headers v0.0.0-20230106234847-43070de90fa1 // indirect
 	github.com/AlecAivazis/survey/v2 v2.3.7 // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 // indirect

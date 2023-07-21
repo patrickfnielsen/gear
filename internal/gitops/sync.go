@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 	"time"
@@ -21,7 +22,7 @@ import (
 type Repository struct {
 	Url    string
 	Branch string
-	SSHKey *[]byte
+	SSHKey []byte
 }
 
 type RepositoryUpdateAvailable struct {
@@ -43,20 +44,22 @@ type Bundle struct {
 
 type GitOps struct {
 	repo          Repository
+	encryptionKey []byte
 	customiseName string
 	currentHash   string
 }
 
-func NewGitOps(customiseName string, currentHash string, repo Repository) *GitOps {
+func NewGitSync(customiseName string, currentHash string, encryptionKey []byte, repo Repository) *GitOps {
 	return &GitOps{
 		customiseName: customiseName,
 		repo:          repo,
 		currentHash:   currentHash,
+		encryptionKey: encryptionKey,
 	}
 }
 
-func (g *GitOps) StartUpdater(ctx context.Context, bundleActivator func(*Bundle) error) {
-	updateTicker := time.NewTicker(time.Minute * 1)
+func (g *GitOps) StartSync(ctx context.Context, syncInterval int, bundleActivator func(*Bundle) error) {
+	updateTicker := time.NewTicker(time.Second * time.Duration(syncInterval))
 
 	go func(ctx context.Context) {
 		defer updateTicker.Stop()
@@ -137,13 +140,10 @@ func (g *GitOps) GenerateBundle() (*Bundle, error) {
 			return errors.Join(err, errors.New("failed to open file"))
 		}
 
-		// handle yaml files only
-		if strings.HasSuffix(fileName, ".yaml") {
+		// handle yaml, json, and env files only
+		extension := path.Ext(fileName)
+		if extension == ".yaml" || extension == ".json" || extension == ".env" || extension == ".enc" {
 			fileName := filepath.Base(fileName)
-			if isCustomisation {
-				fileName = strings.ReplaceAll(fileName, ".yaml", ".override.yaml")
-			}
-
 			bFile := BundleFile{
 				FileName:        fileName,
 				Data:            make([]byte, fi.Size()),
@@ -151,7 +151,18 @@ func (g *GitOps) GenerateBundle() (*Bundle, error) {
 			}
 
 			if _, err := file.Read(bFile.Data); err != nil {
-				return errors.Join(err, errors.New("failed to read policy"))
+				return errors.Join(err, errors.New("failed to read file"))
+			}
+
+			// handle encrypted files
+			if extension == ".enc" && g.encryptionKey != nil {
+				data, err := decryptSecret(g.encryptionKey, fileName, bFile.Data)
+				if err != nil {
+					return errors.Join(err, errors.New("failed to decrypt secret"))
+				}
+
+				bFile.FileName = strings.ReplaceAll(fileName, ".enc", "")
+				bFile.Data = data
 			}
 
 			bundleFiles = append(bundleFiles, bFile)
@@ -237,8 +248,8 @@ func (g *GitOps) getGitRepo() (*git.Repository, error) {
 	return repo, nil
 }
 
-func (g *GitOps) getAuthKey(sshKeyData *[]byte) (*ssh.PublicKeys, error) {
-	authKey, err := ssh.NewPublicKeys("git", *sshKeyData, "")
+func (g *GitOps) getAuthKey(sshKeyData []byte) (*ssh.PublicKeys, error) {
+	authKey, err := ssh.NewPublicKeys("git", sshKeyData, "")
 	if err != nil {
 		return nil, errors.Join(err, errors.New("failed to get authkey"))
 	}

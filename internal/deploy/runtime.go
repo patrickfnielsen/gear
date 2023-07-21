@@ -53,7 +53,7 @@ func (d *RuntimeActivator) DeployUpdate(ctx context.Context, bundle *gitops.Bund
 	// startup all runtimes
 	var deployed []string
 	for _, dep := range bundle.Files {
-		if dep.IsCustomisation {
+		if dep.IsCustomisation || !d.isComposeFile(&dep) {
 			continue
 		}
 
@@ -66,7 +66,7 @@ func (d *RuntimeActivator) DeployUpdate(ctx context.Context, bundle *gitops.Bund
 
 		if override := d.getOverride(bundle.Files, projectName); override != nil {
 			slog.Info("found override for runtime", slog.String("override", override.FileName), slog.String("runtime", projectName))
-			files = append(files, override.FileName)
+			files = append(files, "customise/"+override.FileName)
 		}
 
 		service, err := d.getComposeService(projectName, directory, files, false)
@@ -94,7 +94,7 @@ func (d *RuntimeActivator) DeployUpdate(ctx context.Context, bundle *gitops.Bund
 
 func (d *RuntimeActivator) persistBundle(bundle *gitops.Bundle) error {
 	directory := path.Join(d.deploymentDirectory, bundle.Hash)
-	err := os.MkdirAll(directory, os.ModePerm)
+	err := os.MkdirAll(directory+"/customise", os.ModePerm)
 	if err != nil {
 		return errors.Join(err, errors.New("failed to create directory for deployment"))
 	}
@@ -103,6 +103,10 @@ func (d *RuntimeActivator) persistBundle(bundle *gitops.Bundle) error {
 
 	for _, dep := range bundle.Files {
 		fileName := path.Join(directory, dep.FileName)
+		if dep.IsCustomisation {
+			fileName = path.Join(directory, "customise", dep.FileName)
+		}
+
 		file, err := os.Create(fileName)
 		if err != nil {
 			return errors.Join(err, errors.New("failed to create bundle file"))
@@ -136,10 +140,14 @@ func (d *RuntimeActivator) getComposeService(name, workDir string, files []strin
 
 func (d *RuntimeActivator) getOverride(deployments []gitops.BundleFile, baseName string) *gitops.BundleFile {
 	for _, dep := range deployments {
-		if dep.IsCustomisation && strings.HasPrefix(dep.FileName, baseName) {
+		if dep.IsCustomisation && dep.FileName == baseName {
 			return &dep
 		}
 	}
 
 	return nil
+}
+
+func (d *RuntimeActivator) isComposeFile(file *gitops.BundleFile) bool {
+	return path.Ext(file.FileName) == ".yaml" && strings.HasSuffix(string(file.Data), "version:")
 }
