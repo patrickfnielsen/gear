@@ -15,13 +15,14 @@ type DeploymentConfig struct {
 
 type Config struct {
 	Environment       string           `yaml:"environment"`
-	SyncInterval      *int             `yaml:"sync_interval"`
+	SyncInterval      int              `yaml:"sync_interval"`
 	EncryptionKeyFile string           `yaml:"encryption_key_file"`
 	Repository        RepoConfig       `yaml:"repository"`
 	Deployment        DeploymentConfig `yaml:"deployment"`
 }
 
 func (c *Config) Validate() error {
+	// validate the required fields
 	if c.Deployment.Directory == "" {
 		return errors.New("invalid deployment directory")
 	}
@@ -36,14 +37,6 @@ func (c *Config) Validate() error {
 
 	if c.Repository.Url == "" {
 		return errors.New("invalid repository url")
-	}
-
-	if c.SyncInterval == nil {
-		return errors.New("invalid sync interval")
-	}
-
-	if c.Environment == "" {
-		c.Environment = "PROD"
 	}
 
 	return nil

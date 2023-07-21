@@ -21,7 +21,7 @@ func main() {
 	}
 
 	log := logger.SetupLogger(slog.LevelDebug, config.Environment)
-	log.Info("G.E.A.R (Git-Enabled Automation and Release) starting...")
+	log.Info("G.E.A.R (Git-Enabled Automation and Release) starting...", slog.String("environment", config.Environment))
 
 	var sshKey []byte
 	if config.Repository.SSHKeyFile != "" {
@@ -56,7 +56,7 @@ func main() {
 		},
 	)
 
-	gops.StartSync(ctx, *config.SyncInterval, func(b *gitops.Bundle) error {
+	gops.StartSync(ctx, config.SyncInterval, func(b *gitops.Bundle) error {
 		log.Info("new version available", slog.String("commit_hash", b.Hash))
 		return runtime.DeployUpdate(ctx, b)
 	})
