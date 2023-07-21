@@ -3,6 +3,7 @@ package state
 import (
 	"os"
 
+	"golang.org/x/exp/slog"
 	"gopkg.in/yaml.v3"
 )
 
@@ -20,6 +21,7 @@ func LoadDeploymentState() *DeploymentState {
 	var state DeploymentState
 	err = yaml.Unmarshal([]byte(data), &state)
 	if err != nil {
+		slog.Warn("invalid deployment state found, starting new")
 		return &DeploymentState{}
 	}
 
