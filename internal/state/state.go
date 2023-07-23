@@ -12,8 +12,10 @@ type DeploymentState struct {
 	DeployedServices []string `yaml:"deployedServices"`
 }
 
+const deploymentStateFileName = ".deployment-state.yaml"
+
 func LoadDeploymentState() *DeploymentState {
-	data, err := os.ReadFile(".deployment-state.yaml")
+	data, err := os.ReadFile(deploymentStateFileName)
 	if err != nil {
 		return &DeploymentState{}
 	}
@@ -39,7 +41,7 @@ func SaveDeploymentState(currentHash string, deployedServices []string) (*Deploy
 		return nil, err
 	}
 
-	err = os.WriteFile(".deployment-state.yaml", data, os.ModePerm)
+	err = os.WriteFile(deploymentStateFileName, data, os.ModePerm)
 	if err != nil {
 		return nil, err
 	}
