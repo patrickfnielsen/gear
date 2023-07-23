@@ -149,5 +149,5 @@ func (d *RuntimeActivator) getOverride(deployments []gitops.BundleFile, baseName
 }
 
 func (d *RuntimeActivator) isComposeFile(file *gitops.BundleFile) bool {
-	return path.Ext(file.FileName) == ".yaml" && strings.HasSuffix(string(file.Data), "version:")
+	return path.Ext(file.FileName) == ".yaml" && strings.HasPrefix(string(file.Data), "version:")
 }
