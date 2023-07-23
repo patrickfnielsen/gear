@@ -22,5 +22,5 @@ go.work
 
 .deployment-state.yaml
 config.yaml
-runtime.log
 **/deployments/*
+id_ed25519*
