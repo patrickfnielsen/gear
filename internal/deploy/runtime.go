@@ -140,7 +140,7 @@ func (d *RuntimeActivator) getComposeService(name, workDir string, files []strin
 
 func (d *RuntimeActivator) getOverride(deployments []gitops.BundleFile, baseName string) *gitops.BundleFile {
 	for _, dep := range deployments {
-		if dep.IsCustomisation && dep.FileName == baseName {
+		if dep.IsCustomisation && strings.HasPrefix(dep.FileName, baseName) {
 			return &dep
 		}
 	}
