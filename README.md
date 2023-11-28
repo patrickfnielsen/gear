@@ -29,7 +29,7 @@ While we don't recommend it, it's possible to use the same SSH key that's used t
 
 The private key needs to be specified using `encryption_key_file`.
 
-When encryption is enabled, the git sync engine will decrypt files before it starts the deploy process. Due to the native of the system, all files will be stored unencrypted on the disk afterwards. The reasoning about this is that they key is also stored on the same host.
+When encryption is enabled, the git sync engine will decrypt files before it starts the deploy process. Due to the nature of the system, all files will be stored unencrypted on the disk afterwards. The reasoning about this is that the key is also stored on the same host, and so the folder should be locked down.
 
 ### Encryption Example
   1) Generate a new ssh key pair using:
