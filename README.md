@@ -7,6 +7,8 @@ It stands for `Git-Enabled Automation and Release` and it's a very basic GitOps 
 
 If running a full blown kubernetes cluster is to much, but you still want the benefits of GitOps, this could be a solution. While it's still in very early stages, it does work.
 
+This was mostly an experiment, and should properly not be used for production!
+
 **How does it work?**
 
 It works by checking a remote git repository for changes on a fixed internval (default 1 minute). When it detects changes it pull's down the repository, and saves all `*.yaml` files in something it calls a `Bundle`.
