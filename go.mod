@@ -7,7 +7,7 @@ require (
 	github.com/compose-spec/compose-go v1.17.0
 	github.com/docker/cli v24.0.4+incompatible
 	github.com/docker/compose/v2 v2.20.0
-	github.com/docker/docker v26.1.4+incompatible
+	github.com/docker/docker v26.1.5+incompatible
 	github.com/go-git/go-billy/v5 v5.5.0
 	github.com/go-git/go-git/v5 v5.11.0
 	golang.org/x/exp v0.0.0-20230713183714-613f0c0eb8a1
